@@ -17,7 +17,7 @@
         <h1>○○○</h1>
         
         
-        <h2>${user}20の映画を4つの感情で評価して下さい</h2>
+        <h2>${user}さん20の映画を4つの感情で評価して下さい</h2>
 
          <form action="recomme" method="get" class="eval">
           <table class="menu">
