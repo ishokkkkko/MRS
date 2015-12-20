@@ -47,12 +47,8 @@ public class LoginServlet extends HttpServlet {
         
         try {
            // String id = request.getParameter("id");
-            String user = request.getParameter("user");
-           
-            String wish_f = request.getParameter("wish_f");
-            String wish_c = request.getParameter("wish_c");
-            String wish_sa = request.getParameter("wish_sa");
-            String wish_sc = request.getParameter("wish_sc");
+        //   String user = request.getParameter("user");
+          
          
            Class.forName("org.apache.derby.jdbc.ClientDriver");
            String driverURL = "jdbc:derby://localhost:1527/movierec";
@@ -60,17 +56,12 @@ public class LoginServlet extends HttpServlet {
            Statement stmt = con.createStatement();
            
           
-          String sql = "select * from USERS where USERNAME=? and WISH_F=?"
-                  + "and WISH_C=? and WISH_SA=? and WISH_SC=? ";
+          String sql = "select * from USERS where USERNAME=? ";
          
-           PreparedStatement ps = con.prepareStatement(sql);
-           ps.setString(1,user);
-           ps.setString(2,wish_f);
-           ps.setString(3,wish_c);
-           ps.setString(4,wish_sa);
-           ps.setString(5,wish_sc);
-           
-           ResultSet rs = ps.executeQuery();
+         //  PreparedStatement ps = con.prepareStatement(sql);
+          // ps.setString(1,user);
+          
+          // ResultSet rs = ps.executeQuery();
 /*
              String sql = "insert into USERS(USERNAME, LOCATION)";
              sql += "VALUES(?, ?)";  // ? は順に 1 2 3 4  と番号がつく。
@@ -104,12 +95,11 @@ public class LoginServlet extends HttpServlet {
           
           if(found=true){
              
-             session.setAttribute("user", user);
-             session.setAttribute("wsf",wish_f);
-             session.setAttribute("wsc",wish_c); 
-             session.setAttribute("wssa",wish_sa); 
-             session.setAttribute("wssc",wish_sc);
+             //session.setAttribute("user", user);
+             
                sql = "select * from MOVIES";
+                 PreparedStatement ps = con.prepareStatement(sql);
+               ResultSet rs = ps.executeQuery();
                rs = stmt.executeQuery(sql);
                List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
                while(rs.next()){

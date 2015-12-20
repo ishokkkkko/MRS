@@ -14,20 +14,63 @@
     </head>
     <body>
         <div align="center">
-        <h1>○○○</h1>
-        
-        
-        <h2>${user}20の映画を4つの感情で評価して下さい</h2>
+       
+            <br>
+    <h1>Movie Recommendation System</h1>
+    <br>
 
          <form action="recomme" method="get" class="eval">
           <table class="menu">
              
+               <h2>movie user wishes to watch </h2>
+         <form action="login" method="get" class="login">
+           
+                        fun:
+                      <select name="wish_f">
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                        cool:
+                          <select name="wish_c">
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                        sad:
+                          <select name="wish_sa">
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select> 
+                      　scary:
+                          <select name="wish_sc">
+                            <option value="5">5</option>
+                            <option value="4">4</option>
+                            <option value="3">3</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                           
+                      </p>
+                      <br>
+                      <br>
+                    
+                      
+                          
+              <h2>evalute 20 movies with 4 emotion</h2> 
               <c:forEach items="${data}" var="rec" begin="0" end="4" step="1"> 
                   <tr>
                      
-                      <p>${rec.id}${rec.name}<br>
+                  <h3>    <p>${rec.id}:${rec.name}<br></h3>
                        
-                      楽しい
+                      fun
                       <select name="fun">
                             <option value="5">5</option>
                             <option value="4">4</option>
@@ -36,7 +79,7 @@
                             <option value="1">1</option>
                         </select>
                        
-                         かっこいい
+                        cool
                           <select name="cool">
                             <option value="5">5</option>
                             <option value="4">4</option>
@@ -44,7 +87,7 @@
                             <option value="2">2</option>
                             <option value="1">1</option>
                         </select>
-                        悲しい
+                        sad
                           <select name="sad">
                             <option value="5">5</option>
                             <option value="4">4</option>
@@ -52,7 +95,7 @@
                             <option value="2">2</option>
                             <option value="1">1</option>
                         </select> 
-                      　怖い
+                      　scary
                           <select name="scary">
                             <option value="5">5</option>
                             <option value="4">4</option>
@@ -69,8 +112,8 @@
                      
           </table>
 
-     
-          <input type="submit" name="next" value="次へ進む" />
+             <br>
+          <input type="submit" name="next" value="next" />
       </form>
     </body>
 </html>

@@ -14,9 +14,11 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -51,6 +53,12 @@ public class Recomme extends HttpServlet {
            Statement stmt = con.createStatement();
           
            
+            
+            String wish_f = request.getParameter("wish_f");
+            String wish_c = request.getParameter("wish_c");
+            String wish_sa = request.getParameter("wish_sa");
+            String wish_sc = request.getParameter("wish_sc");
+           
            //user's evalution scores
            String fun[] = request.getParameterValues("fun");
            String cool[] = request.getParameterValues("cool");
@@ -61,13 +69,14 @@ public class Recomme extends HttpServlet {
            PreparedStatement ps = con.prepareStatement(sql);
            ResultSet rs = ps.executeQuery();
            rs = stmt.executeQuery(sql);
-         
-         
+        
+           
            List<Map<String, Double>> list = new ArrayList<Map<String,Double>>();
            List<Map<String, String>> list1 = new ArrayList<Map<String,String>>();
            List<Map<String, String>> list2 = new ArrayList<Map<String,String>>();
            List<Map<String, Double>> listA = new ArrayList<Map<String,Double>>();
            List<Map<String, Double>> listB = new ArrayList<Map<String,Double>>();
+           List<Map<String, String>> listRec = new ArrayList<Map<String,String>>();
           
          
            //each movies of average and standdeviation from MOVIES DB
@@ -116,15 +125,15 @@ public class Recomme extends HttpServlet {
        //calucurate user's each emotion position
            for(int j=0; j<fun.length; j++){
              
-              double f = Integer.parseInt(fun[j]);
-              double c = Integer.parseInt(cool[j]);
-              double sa = Integer.parseInt(sad[j]);
-              double sc = Integer.parseInt(scary[j]);
+              double f = Double.parseDouble(fun[j]);
+              double c = Double.parseDouble(cool[j]);
+              double sa = Double.parseDouble(sad[j]);
+              double sc = Double.parseDouble(scary[j]);
           
               f_posi[j]=((f-fa[j])/fs[j])*10+50;
-              c_posi[j]=((f-ca[j])/cs[j])*10+50;
-              sa_posi[j]=((f-saa[j])/sas[j])*10+50;
-              sc_posi[j]=((f-sca[j])/scs[j])*10+50;  
+              c_posi[j]=((c-ca[j])/cs[j])*10+50;
+              sa_posi[j]=((sa-saa[j])/sas[j])*10+50;
+              sc_posi[j]=((sc-sca[j])/scs[j])*10+50;  
               
            }
                    
@@ -199,80 +208,175 @@ public class Recomme extends HttpServlet {
            int[] id = new int[5];
            int a=0;
            while(rsem.next()){
-               id[a]=rsem.getInt("MOVIEID");//a+5番目の映画
+               id[a]=rsem.getInt("MOVIEID");//a+5番目の映画。movieid=1~5
                 a++;
            }
           
+           int[] id1 = new int[60];
+           int z=0;
            for(int m=0; m<5; m++){//5は推薦する映画の候補数。本来なら60個。
                for(int k=0 ; k<6; k++){
                  if(em1[m+5]==e[k] || em2[m+5]==e[k] || em3[m+5]==e[k]){
+                     id1[z]=id[m];//put recomend movie id / z= number of candidate movies
+                     
                    Map<String,String> record_loc = new LinkedHashMap<String, String>();
-                       record_loc.put("id",String.valueOf(id[m]));
+                       record_loc.put("id",String.valueOf(id1[z]));
                        record_loc.put("em1",String.valueOf(em1[m+5]));
                        record_loc.put("em2",String.valueOf(em2[m+5]));
                        record_loc.put("em3",String.valueOf(em3[m+5]));
                        list1.add(record_loc);
-                       
+                       z++;
                        break;
                     }                
                }
            }
            
-          
-         /*    Map<String,Double> mapA = new LinkedHashMap<String, Double>(); 
-                mapA.put("funA"  ,  Double.parseDouble(wish_f));
-                mapA.put("coolA" ,  Double.parseDouble(wish_c));
-                mapA.put("sadA"  ,  Double.parseDouble(wish_sa));
-                mapA.put("scaryA",  Double.parseDouble(wish_sc));
-           
+            Map<String,Double> mapA = new LinkedHashMap<String, Double>();
+            mapA.put("fun", Double.parseDouble(wish_f));
+            mapA.put("cool", Double.parseDouble(wish_c));
+            mapA.put("sad", Double.parseDouble(wish_sa));
+            mapA.put("scary", Double.parseDouble(wish_sc));
+            
+            //60の映画の予測評価値
+	    int k=0;
+	    double[][] cos = new double[z][2];
+	    //cos[i][1]にはRecome映画の順位、cos[i][2]にはコサイン類似度
+            
            //double c[i][1]=((f_poAve-50)/10)*fs[id[i]-1]+fa[id[i]-1]; 
            //double c[i][2]=上のc_poAve版をする。
            //id.length分する。これにより予測評価値をつける。
             //c[i][4]をmapBに入れる。
-           double[][] c = new double[id.length][4];
-           for(int p=0; p<id.length; p++){
-                  c[p][0]=((f_poAve-50)/10)*fs[id[p]-1]+fa[id[p]-1];
-                  c[p][1]=((c_poAve-50)/10)*cs[id[p]-1]+ca[id[p]-1];
-                  c[p][2]=((sa_poAve-50)/10)*sas[id[p]-1]+saa[id[p]-1];
-                  c[p][3]=((sc_poAve-50)/10)*scs[id[p]-1]+sca[id[p]-1];
-           
-            Map<String,Double> mapB = new LinkedHashMap<String, Double>();
-                mapB.put("funB"  , c[p][0]);
-                mapB.put("coolB" , c[p][1]);
-                mapB.put("sadB"  , c[p][2]);
-                mapB.put("scaryB", c[p][3]);
-           }
+         
+                  
+          double[][] c = new double[z][4];
+           for(int p=0; p<z; p++){
+                  c[p][0]=((f_poAve-50)/10)*fs[id1[p]-1]+fa[id1[p]-1];
+                  c[p][1]=((c_poAve-50)/10)*cs[id1[p]-1]+ca[id1[p]-1];
+                  c[p][2]=((sa_poAve-50)/10)*sas[id1[p]-1]+saa[id1[p]-1];
+                  c[p][3]=((sc_poAve-50)/10)*scs[id1[p]-1]+sca[id1[p]-1];
+             Map<String,Double> mapB = new LinkedHashMap<String, Double>();
+                mapB.put("fun"  , c[p][0]);
+                mapB.put("cool" , c[p][1]);
+                mapB.put("sad"  , c[p][2]);
+                mapB.put("scary", c[p][3]);   
           
-           //最後、cos[k][0]=b[k];  cos[k][1]=cosin;
-           //類似度の結果をソートし、MOVIES_DBをSetResultし、
+           
+            //内積を求める
+		Set<String> setA = mapA.keySet();
+		Iterator<String> iterA = setA.iterator();
+		double naiseki = 0.0;
+		while(iterA.hasNext()){
+		    String key = iterA.next();
+			if(mapB.containsKey(key)){//mapBにAと同じkeyがあるかどうか
+			    naiseki += (double)(mapA.get(key)*mapB.get(key));
+			}
+		}
+		//System.out.println("AとBの内積"+naiseki);
+                //次のベクトル A のサイズを求める
+		iterA = setA.iterator();
+		double sizeA = 0.0;
+		while(iterA.hasNext()){
+		    String key = iterA.next();
+			sizeA += (double)(mapA.get(key) * mapA.get(key));
+		}
+		sizeA = Math.sqrt(sizeA);
+		
+		//次のベクトル B のサイズを求める
+		Iterator<String> iterB = mapB.keySet().iterator(); 
+		double sizeB = 0.0;
+		while(iterB.hasNext()){
+		    String key = iterB.next();
+			sizeB += (double)(mapB.get(key) * mapB.get(key));
+		}
+		sizeB = Math.sqrt(sizeB);
+                
+		//最後にベクトル A とベクトル B の余弦を求める
+		double cosine = naiseki / (sizeA * sizeB);	
+		//System.out.println("Cosine = " + cosine);
+		
+		cos[k][0]=id1[k];
+		cos[k][1]=cosine;
+		k++;
+	    }
+	    //ここまででcos[][]にユーザと各映画のコサイン類似度を格納する
+	    
+
+           //類似度の結果をソート
+	    //cos[i][1]をcos2[i]に格納
+	    double cos2[] = new double[cos.length];
+	    for(int x = 0; x < cos.length ; x++){
+		cos2[x] = cos[x][1];
+	    }
+	    
+	    //cos2を降順にソート
+		for(int x=0; x<cos.length-1; x++) {
+		    for(int y=0; y < cos.length-x-1; y++) {
+			if(cos2[y] < cos2[y+1]) {
+			    double asc = cos2[y];
+			    cos2[y] = cos2[y+1];
+			    cos2[y+1] = asc;
+			}
+		    }
+		}
+		
+           //MOVIES_DBをSetResultし、
            //(A)のint aの値がMOVIESIDと一致するため、
            //ID=aのMOVIE_NAMEをmapに入れる
            
-          /* 
-           rs = stmt.executeQuery(sql);
-               List<Map<String, Object>> list_loc = new ArrayList<Map<String,Object>>();
-               while(rs.next()){
-                    Map<String,Object> record_loc = new HashMap<String, Object>();
-                    record_loc.put("em1",rs.getInt("EM1"));
-                    record_loc.put("em2",rs.getInt("EM2"));
-                    record_loc.put("em3",rs.getInt("EM3"));
-                  
-                    list.add(record);
-           }
-            */
+           double[][] rec_id= new double[z][2];
+           for(int l = 0; l<cos2.length; l++){
+		    for(int m = 0; m < cos.length; m++) {
+			if(cos[m][1]==cos2[l]){
+			    rec_id[l][0] = cos[m][0];//put recomend movie id int rec_id[][0] 
+                            rec_id[l][1] = cos[m][1];//cosin
+                        }
+		    }
+		} 
+         ResultSet rs_last = psem.executeQuery();
+         rs_last = stmt.executeQuery(sqlem);
+             
+           double[] movieid= new double[5];//"5" is number of conndidate movie 
+           String[] movie_name = new String[5];
+            int r=0;
+            while(rs_last.next()){
+                movieid[r]=rs_last.getInt("MOVIEID");
+                movie_name[r]=rs_last.getString("M_NAME");
+                r++;
+            }
             
             
+            for(int s=0; s<rec_id.length; s++){
+                for(int t=0; t<movieid.length; t++){
+                if(rec_id[s][0]==movieid[t]){
+                   
+                        Map<String,String> Recmap = new LinkedHashMap<String, String>();
+                        Recmap.put("m_ranking", String.valueOf(s+1));
+                        Recmap.put("m_name",movie_name[t]);
+                        Recmap.put("cos", String.valueOf(rec_id[s][1]));
+                        listRec.add(Recmap);
+                       
+                        break;
+                        }
+               
+        	}
+            }
             
             stmt.close();
             con.close();   
              
+            
+             session.setAttribute("wsf",wish_f);
+             session.setAttribute("wsc",wish_c); 
+             session.setAttribute("wssa",wish_sa); 
+             session.setAttribute("wssc",wish_sc);
              request.setAttribute("data",list);
              request.setAttribute("data1",list1);
              request.setAttribute("data2",list2);
+             request.setAttribute("dataRec",listRec);
          
             RequestDispatcher rd =
-                       request.getRequestDispatcher("/failed.jsp");
-               rd.forward(request,response);
+                       request.getRequestDispatcher("/final.jsp");
+            rd.forward(request,response);
                
        
 

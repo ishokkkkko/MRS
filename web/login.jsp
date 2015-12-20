@@ -9,64 +9,20 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>login</title>
+        <title>start</title>
     </head>
     <body>
-        <h1>Login</h1>
+        <div align="center">
+        <br>
+    <h1>Movie Recommendation System</h1>
+    <br>
+        <h2>start</h2>
     
   <form action="login" method="post" class="login">
-    <table>
-    <tr>
-      <td>User Name</td>
-      <td><input type="text" name="user" size="16" value="" /></td>
-    </tr>
     
-    <h3>今見たい映画を4つの感情で表して下さい</h3>
-         <form action="login" method="get" class="login">
-             <table class="menu">
-                  楽しい
-                      <select name="wish_f">
-                            <option value="5">5</option>
-                            <option value="4">4</option>
-                            <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1">1</option>
-                        </select>
-                       
-                         かっこいい
-                          <select name="wish_c">
-                            <option value="5">5</option>
-                            <option value="4">4</option>
-                            <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1">1</option>
-                        </select>
-                        悲しい
-                          <select name="wish_sa">
-                            <option value="5">5</option>
-                            <option value="4">4</option>
-                            <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1">1</option>
-                        </select> 
-                      　怖い
-                          <select name="wish_sc">
-                            <option value="5">5</option>
-                            <option value="4">4</option>
-                            <option value="3">3</option>
-                            <option value="2">2</option>
-                            <option value="1">1</option>
-                        </select>
-                           
-                      </p>
-                  
-             </table>
-        
-    
-    </table>
+      
 
-    <input type="submit" value="Login" />
+    <input type="submit" value="start" />
   </form>
-     </form>
-    
+ </div>
 </html>
