@@ -56,49 +56,11 @@ public class LoginServlet extends HttpServlet {
            Statement stmt = con.createStatement();
            
           
-          String sql = "select * from USERS where USERNAME=? ";
-         
-         //  PreparedStatement ps = con.prepareStatement(sql);
-          // ps.setString(1,user);
-          
-          // ResultSet rs = ps.executeQuery();
-/*
-             String sql = "insert into USERS(USERNAME, LOCATION)";
-             sql += "VALUES(?, ?)";  // ? は順に 1 2 3 4  と番号がつく。
-             PreparedStatement ps = con.prepareStatement(sql);
-             ps.setString(1,user); 
-             ps.setInt(2,newloca); 
-             int rc = ps.executeUpdate();
-             
-           String sql1 = "select * from USERS";
-           PreparedStatement ps1 = con.prepareStatement(sql1);
-           //ps.setString(1,user);
-           //ps.setInt(2,newloca);  
-           ResultSet rs = ps1.executeQuery();
-           
-           
-          /*
-           if(newrc.next()) {
-               found = true;
-           }
-           
-           String nextJsp;
-           
-          /** if(!found) {
-               session.invalidate();
-               
-               nextJsp  = "/failed.jsp";
-               RequestDispatcher dispatcher =
-                       request.getRequestDispatcher(nextJsp);
-               dispatcher.forward(request,response);
-           } else {**/
-          
+        
           if(found=true){
-             
-             //session.setAttribute("user", user);
-             
-               sql = "select * from MOVIES";
-                 PreparedStatement ps = con.prepareStatement(sql);
+            
+              String sql = "select * from MOVIES";
+              PreparedStatement ps = con.prepareStatement(sql);
                ResultSet rs = ps.executeQuery();
                rs = stmt.executeQuery(sql);
                List<Map<String, Object>> list = new ArrayList<Map<String,Object>>();
@@ -109,7 +71,9 @@ public class LoginServlet extends HttpServlet {
                   
                     list.add(record);
            }
-              
+             
+           //*maybe,you fetch LOCATION DB ,location_id and location_name
+           //*and you show nextpage those
                rs.close();
                 ps.close();
                stmt.close();

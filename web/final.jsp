@@ -75,7 +75,7 @@
          <tr>
          <p><h4>No.${rec.m_ranking}
                 title:${rec.m_name}<br></h4>
-               cosin類似度 ${rec.cos}<br>
+               cosin similality:${rec.cos}<br>
                      
                          
                          
@@ -89,7 +89,7 @@
      <br>
      
    
-    <a href="failed.jsp">next</a>
+    <a href="fin.jsp">next</a>
 </div>
     </body>
 </html>

@@ -10,7 +10,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>failed</title>
+        <title>fin</title>
     </head>
     <body>
         <div align="center">
@@ -22,7 +22,7 @@
     
     <br>
     
-      <h4>Fin.</h4>
+      <h2>Fin.</h2>
       
 
    

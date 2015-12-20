@@ -70,17 +70,16 @@ public class Recomme extends HttpServlet {
            ResultSet rs = ps.executeQuery();
            rs = stmt.executeQuery(sql);
         
-           
            List<Map<String, Double>> list = new ArrayList<Map<String,Double>>();
            List<Map<String, String>> list1 = new ArrayList<Map<String,String>>();
            List<Map<String, String>> list2 = new ArrayList<Map<String,String>>();
-           List<Map<String, Double>> listA = new ArrayList<Map<String,Double>>();
-           List<Map<String, Double>> listB = new ArrayList<Map<String,Double>>();
            List<Map<String, String>> listRec = new ArrayList<Map<String,String>>();
           
          
-           //each movies of average and standdeviation from MOVIES DB
+           //each movies of average and standdeviation and emotional numbers
+           //from MOVIES DB
            //10　= a number of all movies in MOVIES DB
+           //*you change 10 to 80
            double[] fs = new double[10];
            double[] cs = new double[10];
            double[] sas = new double[10];
@@ -96,6 +95,7 @@ public class Recomme extends HttpServlet {
            int[] em3 = new int[10];
            
            //average of each emotion position　for user
+           //fun.length=20
            double[] f_posi = new double[fun.length];
            double[] c_posi = new double[cool.length];
            double[] sa_posi = new double[sad.length];
@@ -140,7 +140,6 @@ public class Recomme extends HttpServlet {
             double sum1=0,sum2=0,sum3=0,sum4=0;
             Map<String,Double> record = new LinkedHashMap<String, Double>();       
                 for (int x = 0; x< f_posi.length; x++) {
-                       
                     sum1 += f_posi[x];
                     sum2 += c_posi[x];
                     sum3 += sa_posi[x];
@@ -159,18 +158,20 @@ public class Recomme extends HttpServlet {
          
             list.add(record);
        
-            //USER_DBのLOCATIONの値をとってくる
-           int loc=1;//userが1を場所として選択したと仮定する
+           
+            //*you fetch location id from evalutoion.jsp where user checked it
+            //*and,finally do int loc=location_id
+           int loc=1;//postlate user check "1"
                       
-           //select * from LOCATIOをする
+           //*you fetch location_name and id from LOCATION DB
+           //*and show location_name that match user checked loc_id at nextpage(final.jsp) 
            String sqllc = "select * from LOCATION";
            PreparedStatement pslc = con.prepareStatement(sqllc);
            ResultSet rslc = pslc.executeQuery();
            rslc = stmt.executeQuery(sqllc);
            
-           //while(rs.next()){} LOCATION_DBのIDとLOCATION(今だとloc=1)の値が一致するなら、
-           //そのIDの列のM1~6をとってくる
-           //そのM1~6を配列eに入れる
+           //if LOCATION_ID match the id which user check location id(=int loc),
+           //store e[0]~[5] E1~E6 which match the LOCATION_ID
            Map<String,String> record1 = new LinkedHashMap<String, String>();   
            int[] e = new int[6];
            while(rslc.next()){
@@ -193,37 +194,31 @@ public class Recomme extends HttpServlet {
                }    
                    
            }
-                
            
-          //推薦候補の映画のidをid[]に入れる
-          //その後、場所から得た感情ジャンルの番号e1[]~e6[]と、
-          //各推薦映画に割り当てられた感情ジャンルの番号em1[]~em3[]を比較し、
-          //一つでもe1[]~e6[]と一致するジャンル番号em[]を持つ映画を最終的記な推薦映画候補とする
-          
-           String sqlem = "select * from MOVIES where MOVIEID > 5";
+           String sqlem = "select * from MOVIES where MOVIEID > 5";//*autually 5→20
            PreparedStatement psem = con.prepareStatement(sqlem);
            ResultSet rsem = psem.executeQuery();
            rsem = stmt.executeQuery(sqlem);
-           //推薦映画のid5こ。本来なら60個。
-           int[] id = new int[5];
+           //*the number of 5 but acutually 60
+           int[] id = new int[5];//store recommendaion movie id
            int a=0;
            while(rsem.next()){
-               id[a]=rsem.getInt("MOVIEID");//a+5番目の映画。movieid=1~5
-                a++;
+               id[a]=rsem.getInt("MOVIEID");//now,id[0]=5,id[1]=6 so id[a]=a+5
+                a++;                        //acutally, id[0]=21~id[59]=80, so id[a]=a+20 
            }
           
-           int[] id1 = new int[60];
+           int[] id1 = new int[60];//ultimate cantidate movie id
            int z=0;
-           for(int m=0; m<5; m++){//5は推薦する映画の候補数。本来なら60個。
+           for(int m=0; m<5; m++){//*now is 5 ,but actual is 60
                for(int k=0 ; k<6; k++){
-                 if(em1[m+5]==e[k] || em2[m+5]==e[k] || em3[m+5]==e[k]){
-                     id1[z]=id[m];//put recomend movie id / z= number of candidate movies
+                 if(em1[m+5]==e[k] || em2[m+5]==e[k] || em3[m+5]==e[k]){//*actually m+5 → m+20
+                     id1[z]=id[m];//put recomend movie id / finally z = ultimate number of candidate movies
                      
                    Map<String,String> record_loc = new LinkedHashMap<String, String>();
                        record_loc.put("id",String.valueOf(id1[z]));
-                       record_loc.put("em1",String.valueOf(em1[m+5]));
-                       record_loc.put("em2",String.valueOf(em2[m+5]));
-                       record_loc.put("em3",String.valueOf(em3[m+5]));
+                       record_loc.put("em1",String.valueOf(em1[m+5]));//*
+                       record_loc.put("em2",String.valueOf(em2[m+5]));//*
+                       record_loc.put("em3",String.valueOf(em3[m+5]));//*
                        list1.add(record_loc);
                        z++;
                        break;
@@ -237,19 +232,12 @@ public class Recomme extends HttpServlet {
             mapA.put("sad", Double.parseDouble(wish_sa));
             mapA.put("scary", Double.parseDouble(wish_sc));
             
-            //60の映画の予測評価値
-	    int k=0;
+           
 	    double[][] cos = new double[z][2];
-	    //cos[i][1]にはRecome映画の順位、cos[i][2]にはコサイン類似度
-            
-           //double c[i][1]=((f_poAve-50)/10)*fs[id[i]-1]+fa[id[i]-1]; 
-           //double c[i][2]=上のc_poAve版をする。
-           //id.length分する。これにより予測評価値をつける。
-            //c[i][4]をmapBに入れる。
-         
-                  
-          double[][] c = new double[z][4];
-           for(int p=0; p<z; p++){
+	    //cos[i][1]=ultimate candidat movie id、cos[i][2]=cosin            
+            double[][] c = new double[z][4];//z = ultimate number of candidate movies
+            //最終的映画候補の予測評価値/predict evalution value　of ultimate movies
+           for(int p=0; p<z; p++){ 
                   c[p][0]=((f_poAve-50)/10)*fs[id1[p]-1]+fa[id1[p]-1];
                   c[p][1]=((c_poAve-50)/10)*cs[id1[p]-1]+ca[id1[p]-1];
                   c[p][2]=((sa_poAve-50)/10)*sas[id1[p]-1]+saa[id1[p]-1];
@@ -260,8 +248,7 @@ public class Recomme extends HttpServlet {
                 mapB.put("sad"  , c[p][2]);
                 mapB.put("scary", c[p][3]);   
           
-           
-            //内積を求める
+            //calulat DotPuroduct (mapA・mapB)
 		Set<String> setA = mapA.keySet();
 		Iterator<String> iterA = setA.iterator();
 		double naiseki = 0.0;
@@ -271,8 +258,8 @@ public class Recomme extends HttpServlet {
 			    naiseki += (double)(mapA.get(key)*mapB.get(key));
 			}
 		}
-		//System.out.println("AとBの内積"+naiseki);
-                //次のベクトル A のサイズを求める
+                
+                //vector A size
 		iterA = setA.iterator();
 		double sizeA = 0.0;
 		while(iterA.hasNext()){
@@ -280,8 +267,7 @@ public class Recomme extends HttpServlet {
 			sizeA += (double)(mapA.get(key) * mapA.get(key));
 		}
 		sizeA = Math.sqrt(sizeA);
-		
-		//次のベクトル B のサイズを求める
+		//vector B size
 		Iterator<String> iterB = mapB.keySet().iterator(); 
 		double sizeB = 0.0;
 		while(iterB.hasNext()){
@@ -290,13 +276,12 @@ public class Recomme extends HttpServlet {
 		}
 		sizeB = Math.sqrt(sizeB);
                 
-		//最後にベクトル A とベクトル B の余弦を求める
+		//calclate cosin vectorA and vectorB 
 		double cosine = naiseki / (sizeA * sizeB);	
-		//System.out.println("Cosine = " + cosine);
 		
-		cos[k][0]=id1[k];
-		cos[k][1]=cosine;
-		k++;
+		cos[p][0]=id1[p];
+		cos[p][1]=cosine;
+		
 	    }
 	    //ここまででcos[][]にユーザと各映画のコサイン類似度を格納する
 	    
@@ -308,7 +293,7 @@ public class Recomme extends HttpServlet {
 		cos2[x] = cos[x][1];
 	    }
 	    
-	    //cos2を降順にソート
+	    //cos2を降順に//sort descending order cos2[](=cos[][1])
 		for(int x=0; x<cos.length-1; x++) {
 		    for(int y=0; y < cos.length-x-1; y++) {
 			if(cos2[y] < cos2[y+1]) {
@@ -319,10 +304,6 @@ public class Recomme extends HttpServlet {
 		    }
 		}
 		
-           //MOVIES_DBをSetResultし、
-           //(A)のint aの値がMOVIESIDと一致するため、
-           //ID=aのMOVIE_NAMEをmapに入れる
-           
            double[][] rec_id= new double[z][2];
            for(int l = 0; l<cos2.length; l++){
 		    for(int m = 0; m < cos.length; m++) {
@@ -335,8 +316,8 @@ public class Recomme extends HttpServlet {
          ResultSet rs_last = psem.executeQuery();
          rs_last = stmt.executeQuery(sqlem);
              
-           double[] movieid= new double[5];//"5" is number of conndidate movie 
-           String[] movie_name = new String[5];
+           double[] movieid= new double[5];//*"5" is number of conndidate movie /actually 5→60
+           String[] movie_name = new String[5];//*5→60
             int r=0;
             while(rs_last.next()){
                 movieid[r]=rs_last.getInt("MOVIEID");
@@ -344,8 +325,7 @@ public class Recomme extends HttpServlet {
                 r++;
             }
             
-            
-            for(int s=0; s<rec_id.length; s++){
+            for(int s=0; s<rec_id.length; s++){//*actually, rec_id.length→5 because this system show 5 recommendation movies 
                 for(int t=0; t<movieid.length; t++){
                 if(rec_id[s][0]==movieid[t]){
                    
