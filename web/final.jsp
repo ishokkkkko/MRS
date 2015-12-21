@@ -36,7 +36,7 @@
     
       <c:forEach items="${data2}" var="rec2"> 
          <tr>
-         <h4>emotional genre numbers that relate to users select location</h4>    
+         <h4>emotional numbers that relate to users select location</h4>    
                       <p>${rec2.e1}
                          ${rec2.e2}
                          ${rec2.e3}
