@@ -79,7 +79,7 @@ public class Recomme extends HttpServlet {
            //each movies of average and standdeviation and emotional numbers
            //from MOVIES DB
            //10　= a number of all movies in MOVIES DB
-           //*you change 10 to 80
+           //*you change 10 to 60
            double[] fs = new double[10];
            double[] cs = new double[10];
            double[] sas = new double[10];
@@ -199,7 +199,7 @@ public class Recomme extends HttpServlet {
            PreparedStatement psem = con.prepareStatement(sqlem);
            ResultSet rsem = psem.executeQuery();
            rsem = stmt.executeQuery(sqlem);
-           //*the number of 5 but acutually 60
+           //*the number of 5 but acutually 40
            int[] id = new int[5];//store recommendaion movie id
            int a=0;
            while(rsem.next()){
@@ -207,9 +207,9 @@ public class Recomme extends HttpServlet {
                 a++;                        //acutally, id[0]=21~id[59]=80, so id[a]=a+20 
            }
           
-           int[] id1 = new int[60];//ultimate cantidate movie id
+           int[] id1 = new int[40];//ultimate cantidate movie id
            int z=0;
-           for(int m=0; m<5; m++){//*now is 5 ,but actual is 60
+           for(int m=0; m<5; m++){//*now is 5 ,but actual is 40
                for(int k=0 ; k<6; k++){
                  if(em1[m+5]==e[k] || em2[m+5]==e[k] || em3[m+5]==e[k]){//*actually m+5 → m+20
                      id1[z]=id[m];//put recomend movie id / finally z = ultimate number of candidate movies
@@ -234,7 +234,7 @@ public class Recomme extends HttpServlet {
             
            
 	    double[][] cos = new double[z][2];
-	    //cos[i][1]=ultimate candidat movie id、cos[i][2]=cosin            
+	    //cos[i][0]=ultimate candidat movie id、cos[i][1]=cosin            
             double[][] c = new double[z][4];//z = ultimate number of candidate movies
             //最終的映画候補の予測評価値/predict evalution value　of ultimate movies
            for(int p=0; p<z; p++){ 
@@ -316,8 +316,8 @@ public class Recomme extends HttpServlet {
          ResultSet rs_last = psem.executeQuery();
          rs_last = stmt.executeQuery(sqlem);
              
-           double[] movieid= new double[5];//*"5" is number of conndidate movie /actually 5→60
-           String[] movie_name = new String[5];//*5→60
+           double[] movieid= new double[5];//*"5" is number of conndidate movie /actually 5→40
+           String[] movie_name = new String[5];//*5→40
             int r=0;
             while(rs_last.next()){
                 movieid[r]=rs_last.getInt("MOVIEID");
